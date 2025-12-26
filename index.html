@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>QuizX</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .background-blur {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, #00c6ff, transparent 70%);
+      filter: blur(120px);
+      animation: float 8s infinite alternate;
+    }
+
+    @keyframes float {
+      from { transform: translate(-100px, -50px); }
+      to { transform: translate(100px, 50px); }
+    }
+
+    .card {
+      position: relative;
+      width: 360px;
+      padding: 30px;
+      border-radius: 16px;
+      background: rgba(122, 41, 41, 0.1);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 26px;
+    }
+
+    p {
+      text-align: center;
+      font-size: 14px;
+      opacity: 0.85;
+      margin-bottom: 30px;
+    }
+
+    .role-buttons {
+      display: flex;
+      gap: 20px;
+    }
+
+    .role-btn {
+      flex: 1;
+      padding: 16px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      color: #fff;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #ff512f, #dd2476);
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .back {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 13px;
+      cursor: pointer;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="background-blur"></div>
+
+  <div class="card">
+
+    <!-- ROLE SELECTION -->
+    <div id="roleSelect">
+      <h1>Quiz Portal</h1>
+      <p>Select your role to continue</p>
+
+      <div class="role-buttons">
+        <button class="role-btn" onclick="showAdmin()">Admin</button>
+        <button class="role-btn" onclick="showUser()">User</button>
+      </div>
+    </div>
+
+    <!-- ADMIN LOGIN -->
+    <div id="adminLogin" class="hidden">
+      <h1>Admin Login</h1>
+
+      <div class="form-group">
+        <input type="email" id="adminEmail" placeholder="Admin Email">
+      </div>
+
+      <div class="form-group">
+        <input type="password" id="adminPassword" placeholder="Password">
+      </div>
+
+      <button class="submit-btn" onclick="adminLogin()">Login as Admin</button>
+      <div class="back" onclick="goBack()">← Back</div>
+    </div>
+
+    <!-- USER LOGIN -->
+    <div id="userLogin" class="hidden">
+      <h1>User Access</h1>
+
+      <div class="form-group">
+        <input type="email" id="userEmail" placeholder="Email">
+      </div>
+
+      <button class="submit-btn" onclick="userLogin()">Send OTP / Login</button>
+      <div class="back" onclick="goBack()">← Back</div>
+    </div>
+
+  </div>
+
+  <script>
+    const roleSelect = document.getElementById('roleSelect');
+    const adminBox = document.getElementById('adminLogin');
+    const userBox = document.getElementById('userLogin');
+
+    // Temporary credentials
+    const TEMP_ADMIN_EMAIL = "admin@quiz.com";
+    const TEMP_ADMIN_PASSWORD = "admin123";
+    const TEMP_USER_EMAIL = "user@quiz.com";
+
+    function showAdmin() {
+      roleSelect.classList.add('hidden');
+      adminBox.classList.remove('hidden');
+    }
+
+    function showUser() {
+      roleSelect.classList.add('hidden');
+      userBox.classList.remove('hidden');
+    }
+
+    function goBack() {
+      adminBox.classList.add('hidden');
+      userBox.classList.add('hidden');
+      roleSelect.classList.remove('hidden');
+    }
+
+    function adminLogin() {
+      const email = document.getElementById("adminEmail").value.trim();
+      const password = document.getElementById("adminPassword").value.trim();
+
+      if (email === TEMP_ADMIN_EMAIL && password === TEMP_ADMIN_PASSWORD) {
+        window.location.href = "admin-dashboard.html";
+      } else {
+        alert("Invalid admin credentials");
+      }
+    }
+
+    function userLogin() {
+      const email = document.getElementById("userEmail").value.trim();
+
+      if (email === TEMP_USER_EMAIL) {
+        window.location.href = "user-dashboard.html";
+      } else {
+        alert("Invalid user email");
+      }
+    }
+  </script>
+
+</body>
+</html>

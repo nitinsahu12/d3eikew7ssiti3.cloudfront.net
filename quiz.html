@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>QuizX | Quiz</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  display: flex;
+  color: #fff;
+  animation: fadeIn 0.8s ease;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ===== LEFT PANEL ===== */
+.left {
+  width: 260px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  padding: 20px;
+  animation: slideIn 0.6s ease;
+}
+
+.timer {
+  font-size: 22px;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.palette {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.palette button {
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: #555;
+  color: #fff;
+  transition: 0.2s;
+}
+
+.palette button:hover {
+  transform: translateY(-2px);
+}
+
+.palette button.answered {
+  background: #2ecc71;
+  color: #000;
+}
+
+/* ===== MAIN ===== */
+.main {
+  flex: 1;
+  padding: 30px;
+}
+
+.question-box {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 30px;
+  animation: pop 0.5s ease;
+}
+
+.question {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.option {
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.option:hover {
+  background: rgba(255,255,255,0.35);
+  transform: translateX(4px);
+}
+
+.option.selected {
+  background: #00c6ff;
+  color: #000;
+  font-weight: bold;
+}
+
+.controls {
+  margin-top: 25px;
+  display: flex;
+  justify-content: space-between;
+}
+
+button.control {
+  padding: 12px 22px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.prev { background: #aaa; }
+.next { background: #5bc0de; }
+.submit {
+  background: linear-gradient(135deg, #ff512f, #dd2476);
+  color: #fff;
+}
+
+button.control:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+</style>
+</head>
+
+<body>
+
+<!-- LEFT -->
+<div class="left">
+  <div class="timer" id="timer">10:00</div>
+  <div class="palette" id="palette"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="question-box">
+    <div class="question" id="questionText"></div>
+    <div id="options"></div>
+  </div>
+
+  <div class="controls">
+    <button class="control prev" onclick="prev()">Previous</button>
+    <button class="control next" onclick="next()">Next</button>
+    <button class="control submit" onclick="submitQuiz()">Submit</button>
+  </div>
+</div>
+
+<script>
+const API =
+  "https://fc6p2id6ed.execute-api.ap-south-1.amazonaws.com/prod/questions";
+
+let questions = [];
+let answers = [];
+let current = 0;
+let time = 10 * 60;
+
+/* LOAD QUIZ */
+async function loadQuiz() {
+  const res = await fetch(API);
+  questions = await res.json();
+
+  if (!questions.length) {
+    alert("No questions available");
+    return;
+  }
+
+  answers = new Array(questions.length).fill(null);
+  buildPalette();
+  loadQuestion(0);
+}
+
+/* PALETTE */
+function buildPalette() {
+  const p = document.getElementById("palette");
+  p.innerHTML = "";
+
+  questions.forEach((_, i) => {
+    const b = document.createElement("button");
+    b.innerText = i + 1;
+    b.onclick = () => loadQuestion(i);
+    p.appendChild(b);
+  });
+}
+
+/* LOAD QUESTION */
+function loadQuestion(i) {
+  current = i;
+  const q = questions[i];
+  document.getElementById("questionText").innerText =
+    `${i + 1}. ${q.question}`;
+
+  const box = document.getElementById("options");
+  box.innerHTML = "";
+
+  q.options.forEach((opt, idx) => {
+    const d = document.createElement("div");
+    d.className = "option";
+    if (answers[i] === idx) d.classList.add("selected");
+    d.innerText = opt;
+    d.onclick = () => select(idx);
+    box.appendChild(d);
+  });
+
+  updatePalette();
+}
+
+/* SELECT OPTION */
+function select(i) {
+  answers[current] = i;
+  loadQuestion(current);
+}
+
+/* UPDATE PALETTE */
+function updatePalette() {
+  document.querySelectorAll(".palette button").forEach((b, i) => {
+    b.classList.toggle("answered", answers[i] !== null);
+  });
+}
+
+/* NAVIGATION */
+function next() {
+  if (current < questions.length - 1) loadQuestion(current + 1);
+}
+
+function prev() {
+  if (current > 0) loadQuestion(current - 1);
+}
+
+/* TIMER */
+const t = setInterval(() => {
+  const m = Math.floor(time / 60);
+  const s = time % 60;
+  document.getElementById("timer").innerText =
+    `${m}:${s < 10 ? "0" : ""}${s}`;
+  time--;
+
+  if (time < 0) {
+    clearInterval(t);
+    submitQuiz();
+  }
+}, 1000);
+
+/* SUBMIT */
+function submitQuiz() {
+  let score = 0;
+
+  const resultData = questions.map((q, i) => {
+    if (answers[i] === q.answer) score++;
+    return {
+      question: q.question,
+      options: q.options,
+      correctAnswer: q.answer,
+      userAnswer: answers[i]
+    };
+  });
+
+  const attempt = {
+    date: new Date().toLocaleString(),
+    score,
+    total: questions.length,
+    percent: Math.round((score / questions.length) * 100),
+    data: resultData
+  };
+
+  // ✅ Save for result page (single attempt)
+  sessionStorage.setItem("quizResult", JSON.stringify(attempt));
+
+  // ✅ Save for history (persistent)
+  const history = JSON.parse(localStorage.getItem("quizHistory")) || [];
+  history.push(attempt);
+  localStorage.setItem("quizHistory", JSON.stringify(history));
+
+  window.location.href = "result.html";
+}
+
+/* START */
+loadQuiz();
+</script>
+
+</body>
+</html>
