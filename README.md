@@ -6,7 +6,7 @@ Built using HTML, CSS, JavaScript and deployed on AWS (S3 + CloudFront + API Gat
 ---
 
 ## 🔗 Live Demo
-👉 d7tnx8u4amxgq.cloudfront.net
+👉 [https://d7tnx8u4amxgq.cloudfront.net](https://d7tnx8u4amxgq.cloudfront.net/)
 
 ## ✨ Features
 
