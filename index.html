@@ -4,165 +4,250 @@
   <meta charset="UTF-8" />
   <title>QuizX</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
 
   <style>
+    :root {
+      --primary: #00f2fe;
+      --secondary: #4facfe;
+      --accent: #7000ff;
+      --bg: #030712;
+      --glass: rgba(255, 255, 255, 0.03);
+    }
+
     * {
       box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
     body {
       margin: 0;
       height: 100vh;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      background-color: var(--bg);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #fff;
       overflow: hidden;
+      perspective: 1000px;
     }
 
-    .background-blur {
+    /* --- Animated Particle Background --- */
+    .bg-space {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+      z-index: -1;
+    }
+
+    .stars {
       position: absolute;
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, #00c6ff, transparent 70%);
-      filter: blur(120px);
-      animation: float 8s infinite alternate;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: transparent url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/123163/stars.png') repeat top center;
+      animation: move-stars 100s linear infinite;
+      opacity: 0.5;
     }
 
-    @keyframes float {
-      from { transform: translate(-100px, -50px); }
-      to { transform: translate(100px, 50px); }
+    @keyframes move-stars {
+      from { background-position: 0 0; }
+      to { background-position: 0 -10000px; }
     }
 
+    /* --- Main Card Architecture --- */
     .card {
       position: relative;
-      width: 360px;
-      padding: 30px;
-      border-radius: 16px;
-      background: rgba(122, 41, 41, 0.1);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-      animation: fadeIn 1s ease;
+      width: 420px;
+      padding: 50px 40px;
+      border-radius: 28px;
+      background: var(--glass);
+      backdrop-filter: blur(25px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      animation: card-float 6s ease-in-out infinite;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes card-float {
+      0%, 100% { transform: translateY(0) rotateX(0deg); }
+      50% { transform: translateY(-15px) rotateX(2deg); }
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 10px;
-      font-size: 26px;
+      margin: 0;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(to right, #fff, var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.3));
     }
 
     p {
       text-align: center;
+      color: #94a3b8;
       font-size: 14px;
-      opacity: 0.85;
-      margin-bottom: 30px;
+      margin: 10px 0 40px 0;
     }
 
-    .role-buttons {
-      display: flex;
-      gap: 20px;
-    }
-
+    /* --- Advanced Button Styles --- */
     .role-btn {
-      flex: 1;
-      padding: 16px;
-      border-radius: 12px;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      color: #fff;
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .form-group {
+      position: relative;
+      width: 100%;
+      padding: 18px;
       margin-bottom: 15px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.02);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .role-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--primary);
+      transform: scale(1.02);
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+    }
+
+    .role-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      transform: scale(0);
+      transition: transform 0.6s;
+    }
+
+    .role-btn:active::after {
+      transform: scale(1);
+    }
+
+    /* --- Form Elements --- */
+    .form-group {
+      margin-bottom: 20px;
+      transform: translateY(20px);
+      opacity: 0;
+      animation: slideIn 0.5s forwards;
+    }
+
+    @keyframes slideIn {
+      to { transform: translateY(0); opacity: 1; }
     }
 
     input {
       width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      color: #fff;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    input:focus {
       outline: none;
-      font-size: 14px;
+      border-color: var(--secondary);
+      box-shadow: 0 0 15px rgba(79, 172, 254, 0.2);
+      background: rgba(0, 0, 0, 0.6);
     }
 
     .submit-btn {
       width: 100%;
-      padding: 14px;
-      margin-top: 10px;
+      padding: 18px;
       border: none;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #ff512f, #dd2476);
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--secondary), var(--accent));
       color: #fff;
-      font-size: 15px;
+      font-weight: 700;
+      font-size: 16px;
       cursor: pointer;
+      transition: 0.4s;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(112, 0, 255, 0.4);
+    }
+
+    /* --- Navigation Transitions --- */
+    .hidden { display: none; }
+
+    .fade-content {
+      animation: fadeInContent 0.6s ease-out;
+    }
+
+    @keyframes fadeInContent {
+      from { opacity: 0; filter: blur(10px); }
+      to { opacity: 1; filter: blur(0); }
     }
 
     .back {
+      display: block;
       text-align: center;
-      margin-top: 15px;
+      margin-top: 25px;
+      color: #64748b;
       font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
       cursor: pointer;
-      opacity: 0.8;
+      transition: 0.3s;
     }
+
+    .back:hover { color: var(--primary); }
+
   </style>
 </head>
 
 <body>
 
-  <div class="background-blur"></div>
+  <div class="bg-space">
+    <div class="stars"></div>
+  </div>
 
-  <div class="card">
+  <div class="card" id="mainCard">
 
-    <!-- ROLE SELECTION -->
-    <div id="roleSelect">
-      <h1>Quiz Portal</h1>
-      <p>Select your role to continue</p>
+    <div id="roleSelect" class="fade-content">
+      <h1>QuizX</h1>
+      <p>Decentralized Knowledge Portal</p>
 
       <div class="role-buttons">
-        <button class="role-btn" onclick="showAdmin()">Admin</button>
-        <button class="role-btn" onclick="showUser()">User</button>
+        <button class="role-btn" onclick="showAdmin()">Terminal Administrator</button>
+        <button class="role-btn" onclick="showUser()">Candidate Verification</button>
       </div>
     </div>
 
-    <!-- ADMIN LOGIN -->
     <div id="adminLogin" class="hidden">
-      <h1>Admin Login</h1>
+      <h1>Admin Auth</h1>
+      <p>System-level access required</p>
 
-      <div class="form-group">
-        <input type="email" id="adminEmail" placeholder="Admin Email">
+      <div class="form-group" style="animation-delay: 0.1s">
+        <input type="email" id="adminEmail" placeholder="Admin ID">
       </div>
 
-      <div class="form-group">
-        <input type="password" id="adminPassword" placeholder="Password">
+      <div class="form-group" style="animation-delay: 0.2s">
+        <input type="password" id="adminPassword" placeholder="Access Key">
       </div>
 
-      <button class="submit-btn" onclick="adminLogin()">Login as Admin</button>
-      <div class="back" onclick="goBack()">← Back</div>
+      <button class="submit-btn" onclick="adminLogin()">Bypass Firewall</button>
+      <div class="back" onclick="goBack()">Return to Core</div>
     </div>
 
-    <!-- USER LOGIN -->
     <div id="userLogin" class="hidden">
-      <h1>User Access</h1>
+      <h1>Identity</h1>
+      <p>Validating neural signature...</p>
 
-      <div class="form-group">
-        <input type="email" id="userEmail" placeholder="Email">
+      <div class="form-group" style="animation-delay: 0.1s">
+        <input type="email" id="userEmail" placeholder="Identity Email">
       </div>
 
-      <button class="submit-btn" onclick="userLogin()">Send OTP / Login</button>
-      <div class="back" onclick="goBack()">← Back</div>
+      <button class="submit-btn" onclick="userLogin()">Request Token</button>
+      <div class="back" onclick="goBack()">Return to Core</div>
     </div>
 
   </div>
@@ -172,25 +257,34 @@
     const adminBox = document.getElementById('adminLogin');
     const userBox = document.getElementById('userLogin');
 
-    // Temporary credentials
     const TEMP_ADMIN_EMAIL = "admin@quiz.com";
     const TEMP_ADMIN_PASSWORD = "admin123";
     const TEMP_USER_EMAIL = "user@quiz.com";
 
     function showAdmin() {
-      roleSelect.classList.add('hidden');
-      adminBox.classList.remove('hidden');
+      transition(roleSelect, adminBox);
     }
 
     function showUser() {
-      roleSelect.classList.add('hidden');
-      userBox.classList.remove('hidden');
+      transition(roleSelect, userBox);
     }
 
     function goBack() {
-      adminBox.classList.add('hidden');
-      userBox.classList.add('hidden');
-      roleSelect.classList.remove('hidden');
+      const active = adminBox.classList.contains('hidden') ? userBox : adminBox;
+      transition(active, roleSelect);
+    }
+
+    function transition(fadeOut, fadeIn) {
+      fadeOut.style.opacity = '0';
+      fadeOut.style.transform = 'scale(0.9)';
+      
+      setTimeout(() => {
+        fadeOut.classList.add('hidden');
+        fadeIn.classList.remove('hidden');
+        fadeIn.classList.add('fade-content');
+        fadeIn.style.opacity = '1';
+        fadeIn.style.transform = 'scale(1)';
+      }, 300);
     }
 
     function adminLogin() {
@@ -200,20 +294,41 @@
       if (email === TEMP_ADMIN_EMAIL && password === TEMP_ADMIN_PASSWORD) {
         window.location.href = "admin-dashboard.html";
       } else {
-        alert("Invalid admin credentials");
+        triggerError();
       }
     }
 
     function userLogin() {
       const email = document.getElementById("userEmail").value.trim();
-
       if (email === TEMP_USER_EMAIL) {
         window.location.href = "user-dashboard.html";
       } else {
-        alert("Invalid user email");
+        triggerError();
       }
     }
+
+    function triggerError() {
+      const card = document.getElementById('mainCard');
+      card.style.animation = 'none';
+      card.offsetHeight; // trigger reflow
+      card.style.border = '1px solid #ff4b2b';
+      card.style.animation = 'shake 0.4s linear';
+      setTimeout(() => {
+        card.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+        card.style.animation = 'card-float 6s ease-in-out infinite';
+      }, 400);
+    }
   </script>
+
+  <style>
+    /* Error Shake Animation */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      50% { transform: translateX(10px); }
+      75% { transform: translateX(-10px); }
+    }
+  </style>
 
 </body>
 </html>
